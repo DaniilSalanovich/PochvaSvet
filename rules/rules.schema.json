@@ -1,0 +1,158 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://pochvasvet.example/rules.schema.json",
+  "title": "Правила ПочваСвет",
+  "type": "object",
+  "required": ["meta", "lights", "questions", "indicators", "organics", "n_full", "combos", "budget", "calendar", "safety", "fertilizers", "default_fertilizer"],
+  "additionalProperties": false,
+  "$defs": {
+    "light": {"enum": ["green", "yellow", "red"]},
+    "range": {"type": "array", "items": {"type": "number", "minimum": 0}, "minItems": 2, "maxItems": 2},
+    "texts": {"type": "array", "items": {"type": "string", "minLength": 1}},
+    "condition": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": false,
+      "properties": {
+        "ph": {"$ref": "#/$defs/idList"}, "carb": {"$ref": "#/$defs/idList"},
+        "n": {"$ref": "#/$defs/idList"}, "p": {"$ref": "#/$defs/idList"}, "k": {"$ref": "#/$defs/idList"},
+        "org_color": {"$ref": "#/$defs/idList"}, "org_foam": {"$ref": "#/$defs/idList"}, "org_worms": {"$ref": "#/$defs/idList"},
+        "texture": {"type": "array", "items": {"enum": ["sand", "sandy_loam", "loam"]}, "minItems": 1},
+        "crop": {"type": "array", "items": {"enum": ["grain", "potato", "veg"]}, "minItems": 1},
+        "manure": {"type": "array", "items": {"enum": ["yes", "no"]}, "minItems": 1},
+        "org": {"type": "array", "items": {"$ref": "#/$defs/light"}, "minItems": 1},
+        "month": {"type": "array", "items": {"type": "integer", "minimum": 1, "maximum": 12}, "minItems": 1},
+        "any": {"type": "array", "items": {"$ref": "#/$defs/condition"}, "minItems": 2},
+        "all_green": {"type": "boolean"}
+      }
+    },
+    "idList": {"type": "array", "items": {"type": "string", "pattern": "^[a-z]+[0-9]$"}, "minItems": 1},
+    "lightRules": {
+      "type": "array",
+      "items": {
+        "type": "object", "required": ["when", "light"], "additionalProperties": false,
+        "properties": {"when": {"$ref": "#/$defs/condition"}, "light": {"$ref": "#/$defs/light"}}
+      }
+    },
+    "byCrop": {
+      "type": "object", "additionalProperties": false, "required": ["grain", "potato", "veg"],
+      "properties": {"grain": {"$ref": "#/$defs/range"}, "potato": {"$ref": "#/$defs/range"}, "veg": {"$ref": "#/$defs/range"}}
+    },
+    "level": {
+      "type": "object",
+      "required": ["id", "button", "title", "light", "meaning", "actions"],
+      "additionalProperties": false,
+      "properties": {
+        "id": {"type": "string", "pattern": "^[a-z]+[0-9]$"},
+        "button": {"type": "string", "minLength": 1, "maxLength": 48},
+        "title": {"type": "string", "minLength": 1},
+        "light": {"$ref": "#/$defs/light"},
+        "light_rules": {"$ref": "#/$defs/lightRules"},
+        "meaning": {"type": "string"},
+        "actions": {"$ref": "#/$defs/texts"},
+        "lime": {
+          "type": "object", "additionalProperties": false, "minProperties": 1,
+          "properties": {"sand": {"$ref": "#/$defs/range"}, "sandy_loam": {"$ref": "#/$defs/range"}, "loam": {"$ref": "#/$defs/range"}}
+        },
+        "dose": {"$ref": "#/$defs/byCrop"},
+        "n_mode": {"enum": ["full", "minus_reserve", "none"]},
+        "reserve": {"type": "number", "minimum": 0}
+      }
+    }
+  },
+  "properties": {
+    "meta": {
+      "type": "object", "required": ["title", "version", "disclaimer"], "additionalProperties": false,
+      "properties": {"title": {"type": "string"}, "version": {"type": "string", "minLength": 1}, "disclaimer": {"type": "string"}}
+    },
+    "lights": {
+      "type": "object", "required": ["green", "yellow", "red"], "additionalProperties": false,
+      "patternProperties": {"^(green|yellow|red)$": {
+        "type": "object", "required": ["emoji", "name", "rank", "hint"], "additionalProperties": false,
+        "properties": {"emoji": {"type": "string"}, "name": {"type": "string"}, "rank": {"type": "integer"}, "hint": {"type": "string"}}
+      }}
+    },
+    "questions": {
+      "type": "array", "minItems": 1,
+      "items": {
+        "type": "object", "required": ["id", "text"], "additionalProperties": false,
+        "properties": {
+          "id": {"type": "string"},
+          "text": {"type": "string"},
+          "indicator": {"type": "string"},
+          "required": {"type": "boolean"},
+          "options": {"type": "array", "minItems": 2, "items": {
+            "type": "object", "required": ["id", "label"], "additionalProperties": false,
+            "properties": {"id": {"type": "string", "maxLength": 12}, "label": {"type": "string", "maxLength": 48}}
+          }}
+        },
+        "oneOf": [{"required": ["indicator"]}, {"required": ["options"]}]
+      }
+    },
+    "indicators": {
+      "type": "array", "minItems": 1,
+      "items": {
+        "type": "object", "required": ["id", "name", "levels"], "additionalProperties": false,
+        "properties": {
+          "id": {"type": "string"}, "name": {"type": "string"}, "chapter": {"type": "string"},
+          "group": {"type": "string"}, "intro": {"type": "string"},
+          "levels": {"type": "array", "minItems": 2, "items": {"$ref": "#/$defs/level"}}
+        }
+      }
+    },
+    "organics": {
+      "type": "object", "required": ["name", "rule", "levels"], "additionalProperties": false,
+      "properties": {
+        "name": {"type": "string"}, "rule": {"type": "string"},
+        "levels": {"type": "object", "required": ["red", "yellow", "green"], "additionalProperties": false,
+          "patternProperties": {"^(green|yellow|red)$": {
+            "type": "object", "required": ["title", "meaning", "actions"], "additionalProperties": false,
+            "properties": {"title": {"type": "string"}, "meaning": {"type": "string"}, "actions": {"$ref": "#/$defs/texts"}}
+          }}}
+      }
+    },
+    "n_full": {
+      "type": "object", "required": ["grain", "potato", "veg"], "additionalProperties": false,
+      "patternProperties": {"^(grain|potato|veg)$": {
+        "type": "object", "required": ["range", "note"], "additionalProperties": false,
+        "properties": {"range": {"$ref": "#/$defs/range"}, "note": {"type": "string"}}
+      }}
+    },
+    "combos": {
+      "type": "array",
+      "items": {
+        "type": "object", "required": ["id", "group", "title", "light", "priority", "when", "why", "actions"], "additionalProperties": false,
+        "properties": {
+          "id": {"type": "string", "pattern": "^K[0-9]+$"},
+          "group": {"type": "string"}, "title": {"type": "string"},
+          "light": {"$ref": "#/$defs/light"},
+          "priority": {"type": "integer", "minimum": 1, "maximum": 9},
+          "when": {"$ref": "#/$defs/condition"},
+          "light_rules": {"$ref": "#/$defs/lightRules"},
+          "why": {"type": "string"}, "actions": {"$ref": "#/$defs/texts"}
+        }
+      }
+    },
+    "budget": {"$ref": "#/$defs/texts"},
+    "calendar": {"type": "array", "items": {
+      "type": "object", "required": ["period", "tests", "work"], "additionalProperties": false,
+      "properties": {"period": {"type": "string"}, "tests": {"type": "string"}, "work": {"type": "string"}}
+    }},
+    "safety": {"$ref": "#/$defs/texts"},
+    "fertilizers": {"type": "array", "minItems": 1, "items": {
+      "type": "object", "required": ["id", "name", "nutrient", "pct"], "additionalProperties": false,
+      "properties": {
+        "id": {"type": "string", "pattern": "^[a-z0-9_]+$", "maxLength": 12},
+        "name": {"type": "string"}, "nutrient": {"type": "string"},
+        "pct": {"type": "number", "exclusiveMinimum": 0, "maximum": 100}
+      }
+    }},
+    "default_fertilizer": {
+      "type": "object", "required": ["N", "P", "K"], "additionalProperties": false,
+      "properties": {
+        "N": {"type": "string"}, "P": {"type": "string"},
+        "K": {"oneOf": [{"type": "string"}, {"type": "object", "additionalProperties": {"type": "string"}}]}
+      }
+    }
+  }
+}

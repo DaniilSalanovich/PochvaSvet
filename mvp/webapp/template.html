@@ -1,0 +1,380 @@
+<title>Брошюра ПочваСвет</title>
+<meta name="description" content="Интерактивная брошюра ПочваСвет: что делать по результатам тестов почвы">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=Unbounded:wght@500;700&display=swap">
+<!--TG_SCRIPT-->
+<style>
+/* Layout: одна колонка для телефона; вкладки-сегменты сверху, полоска цветов pH-индикатора как подпись бренда. */
+:root {
+  --bg: #F3F4EF;          /* лишайниково-серый лист */
+  --surface: #FFFFFF;
+  --sunk: #E9EBE4;
+  --ink: #1E2420;
+  --muted: #5C655E;
+  --line: #D6DAD1;
+  --accent: #2450A6;      /* молибденовая синь */
+  --accent-soft: #E3EAF7;
+  --good: #2E8547; --good-soft: #E2F1E5;
+  --warn: #B87B0C; --warn-soft: #FBF0D9;
+  --bad: #C23E2D;  --bad-soft: #F9E3DF;
+  --font-display: "Unbounded", "Segoe UI", system-ui, sans-serif;
+  --font-body: "IBM Plex Sans", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --font-data: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --r: 10px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #131714; --surface: #1B201C; --sunk: #232924; --ink: #E6EAE3; --muted: #9AA49C; --line: #2F3731;
+    --accent: #84A6F0; --accent-soft: #1F2A40;
+    --good: #5DBB78; --good-soft: #1B3022; --warn: #E2AE45; --warn-soft: #3A2E15; --bad: #EE7B69; --bad-soft: #3E2220;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #131714; --surface: #1B201C; --sunk: #232924; --ink: #E6EAE3; --muted: #9AA49C; --line: #2F3731;
+  --accent: #84A6F0; --accent-soft: #1F2A40;
+  --good: #5DBB78; --good-soft: #1B3022; --warn: #E2AE45; --warn-soft: #3A2E15; --bad: #EE7B69; --bad-soft: #3E2220;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font: 15px/1.5 var(--font-body); padding-inline: 16px; padding-block: 0 48px; }
+.wrap { max-width: 680px; margin: 0 auto; }
+h1, h2, h3 { text-wrap: balance; margin: 0; }
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+header { padding-block: 20px 12px; display: grid; gap: 10px; }
+.brand { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.brand h1 { font: 700 22px/1.1 var(--font-display); letter-spacing: -0.01em; }
+.brand span { color: var(--muted); font-size: 13px; }
+.scale { height: 6px; border-radius: 3px; background: linear-gradient(90deg, #C9372A 0%, #E4772A 22%, #E8B32A 42%, #B9C93A 58%, #3E9E57 74%, #2B8C8C 88%, #2C5FB8 100%); }
+.scale-labels { display: flex; justify-content: space-between; font: 500 11px var(--font-data); color: var(--muted); font-variant-numeric: tabular-nums; }
+
+nav.tabs { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--bg); padding-block: 8px; }
+.seg { display: grid; grid-template-columns: repeat(4, 1fr); background: var(--sunk); border-radius: var(--r); padding: 3px; gap: 3px; }
+.seg button { border: 0; background: transparent; padding: 8px 4px; border-radius: 8px; font-size: 13px; font-weight: 500; cursor: pointer; color: var(--muted); }
+.seg button[aria-selected="true"] { background: var(--surface); color: var(--ink); box-shadow: 0 1px 2px rgba(0,0,0,.08); }
+
+section.panel { display: grid; gap: 16px; padding-top: 8px; }
+.lead { color: var(--muted); margin: 0; }
+.note { display: flex; gap: 10px; align-items: center; justify-content: space-between; flex-wrap: wrap; background: var(--accent-soft); border-radius: var(--r); padding: 10px 12px; font-size: 13.5px; }
+.btn { border: 1px solid var(--line); background: var(--surface); border-radius: 8px; padding: 7px 12px; cursor: pointer; font-size: 13.5px; font-weight: 500; }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--surface); }
+
+/* вопросы мастера */
+.q { display: grid; gap: 8px; }
+.q-label { font-weight: 600; font-size: 14.5px; }
+.q-step { display: block; margin-bottom: 2px; font: 500 11px var(--font-data); color: var(--muted); letter-spacing: .06em; text-transform: uppercase; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { display: inline-flex; align-items: center; gap: 7px; border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 6px 12px; font-size: 13.5px; cursor: pointer; text-align: left; }
+.chip[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft); font-weight: 500; }
+.chip.skip { color: var(--muted); border-style: dashed; }
+.dot { width: 10px; height: 10px; border-radius: 50%; flex: none; background: var(--line); }
+.dot.red { background: var(--bad); } .dot.yellow { background: var(--warn); } .dot.green { background: var(--good); }
+fieldset { border: 0; padding: 0; margin: 0; min-width: 0; }
+#wizard { display: grid; gap: 22px; }
+legend.q-label { padding: 0; margin-bottom: 8px; }
+.q { gap: 0; }
+
+/* результат */
+.result { display: grid; gap: 12px; border-top: 1px solid var(--line); padding-top: 18px; scroll-margin-top: 64px; }
+.verdict { display: flex; gap: 14px; align-items: center; border-radius: var(--r); padding: 14px 16px; background: var(--surface); border: 1px solid var(--line); }
+.verdict .lamp { width: 34px; height: 34px; border-radius: 50%; flex: none; background: var(--line); }
+.verdict.red .lamp { background: var(--bad); } .verdict.yellow .lamp { background: var(--warn); } .verdict.green .lamp { background: var(--good); }
+.verdict.red { background: var(--bad-soft); border-color: transparent; }
+.verdict.yellow { background: var(--warn-soft); border-color: transparent; }
+.verdict.green { background: var(--good-soft); border-color: transparent; }
+.verdict h2 { font: 700 17px/1.2 var(--font-display); }
+.verdict p { margin: 2px 0 0; font-size: 13.5px; color: var(--muted); }
+.block { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 14px 16px; display: grid; gap: 8px; min-width: 0; }
+.block h3 { font-size: 15px; font-weight: 600; display: flex; gap: 8px; align-items: center; }
+.block ol, .block ul { margin: 0; padding-left: 20px; display: grid; gap: 4px; }
+.card { border-left: 4px solid var(--line); }
+.card.red { border-left-color: var(--bad); } .card.yellow { border-left-color: var(--warn); } .card.green { border-left-color: var(--good); }
+.card .lvl { font-size: 13.5px; color: var(--muted); }
+.meaning { font-style: italic; color: var(--muted); margin: 0; font-size: 14px; }
+.dose { background: var(--sunk); border-radius: 8px; padding: 8px 10px; font: 500 13px/1.55 var(--font-data); font-variant-numeric: tabular-nums; display: grid; gap: 2px; overflow-x: auto; }
+.tag { font: 500 11px var(--font-data); letter-spacing: .05em; text-transform: uppercase; color: var(--accent); }
+.combo-match { border: 1px solid var(--accent); }
+.warn-line { background: var(--warn-soft); border-radius: 8px; padding: 8px 10px; font-size: 13.5px; }
+.fab { position: fixed; right: 16px; bottom: calc(16px + env(safe-area-inset-bottom, 0px)); z-index: 6; display: inline-flex; gap: 8px; align-items: center; border: 0; border-radius: 999px; padding: 10px 16px; background: var(--ink); color: var(--bg); font-weight: 600; font-size: 13.5px; cursor: pointer; box-shadow: 0 4px 14px rgba(0,0,0,.18); }
+
+/* брошюра */
+details.acc { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); }
+details.acc > summary { list-style: none; cursor: pointer; padding: 14px 16px; display: flex; justify-content: space-between; gap: 10px; align-items: center; font-weight: 600; }
+details.acc > summary::-webkit-details-marker { display: none; }
+details.acc > summary::after { content: "+"; font: 500 18px var(--font-data); color: var(--muted); }
+details.acc[open] > summary::after { content: "−"; }
+.acc-body { padding: 0 16px 16px; display: grid; gap: 12px; }
+.lvl-item { display: grid; gap: 6px; padding-top: 12px; border-top: 1px solid var(--line); }
+.lvl-item h4 { margin: 0; font-size: 14.5px; display: flex; gap: 8px; align-items: center; }
+.lvl-item .btnlabel { font-size: 12.5px; color: var(--muted); }
+.lvl-item ul { margin: 0; padding-left: 20px; display: grid; gap: 3px; }
+.tbl-wrap { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: 13.5px; }
+th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-weight: 600; color: var(--muted); font-size: 12.5px; }
+td.num { font-family: var(--font-data); font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+.filters { display: flex; gap: 6px; flex-wrap: wrap; }
+.group-h { font: 500 12px var(--font-data); letter-spacing: .06em; text-transform: uppercase; color: var(--muted); margin-top: 6px; }
+
+/* пересчёт */
+.calc-grid { display: grid; gap: 14px; }
+.field { display: grid; gap: 6px; }
+.field label { font-weight: 600; font-size: 14px; }
+.inline { display: flex; gap: 8px; flex-wrap: wrap; }
+input[type="number"], select { font: 500 16px var(--font-data); padding: 9px 10px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); min-width: 0; }
+input[type="number"] { width: 9em; }
+.out { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 8px; }
+.out div { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 12px; }
+.out b { display: block; font: 700 20px/1.2 var(--font-data); font-variant-numeric: tabular-nums; }
+.out span { font-size: 12.5px; color: var(--muted); }
+footer { color: var(--muted); font-size: 12.5px; padding-top: 20px; }
+@media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="brand"><h1>ПочваСвет</h1><span>что делать по результатам тестов почвы</span></div>
+    <div class="scale" aria-hidden="true"></div>
+    <div class="scale-labels" aria-hidden="true"><span>pH 4,5</span><span>5,0</span><span>5,5</span><span>6,0</span><span>6,5</span><span>7,0+</span></div>
+  </header>
+
+  <nav class="tabs">
+    <div class="seg" role="tablist" aria-label="Разделы">
+      <button role="tab" id="tab-check" aria-controls="p-check" aria-selected="true">Разбор</button>
+      <button role="tab" id="tab-book" aria-controls="p-book" aria-selected="false">Брошюра</button>
+      <button role="tab" id="tab-combo" aria-controls="p-combo" aria-selected="false">Сочетания</button>
+      <button role="tab" id="tab-calc" aria-controls="p-calc" aria-selected="false">Пересчёт</button>
+    </div>
+  </nav>
+
+  <section class="panel" id="p-check" role="tabpanel" aria-labelledby="tab-check">
+    <p class="lead">Отметьте результат каждого теста — рекомендации ниже пересчитываются сразу. Тест не делали — нажмите «не делал».</p>
+    <div class="note" id="example-note"><span>Сейчас заполнен <b>пример</b>: кислая супесь под картофель.</span><button class="btn" id="clear">Очистить</button></div>
+    <form id="wizard" onsubmit="return false"></form>
+    <div class="result" id="result" aria-live="polite"></div>
+  </section>
+
+  <section class="panel" id="p-book" role="tabpanel" aria-labelledby="tab-book" hidden>
+    <p class="lead">Читайте по порядку: кислотность, затем фосфор и калий, потом азот и органика. Кислотность исправляют первой — без неё остальные удобрения работают вполсилы.</p>
+    <div id="book"></div>
+  </section>
+
+  <section class="panel" id="p-combo" role="tabpanel" aria-labelledby="tab-combo" hidden>
+    <p class="lead">Если результаты совпали с сочетанием, его рекомендация главнее советов по отдельным тестам. Совпавшие с вашим разбором отмечены рамкой.</p>
+    <div class="filters" id="combo-filters"></div>
+    <div id="combos" style="display:grid;gap:10px"></div>
+  </section>
+
+  <section class="panel" id="p-calc" role="tabpanel" aria-labelledby="tab-calc" hidden>
+    <p class="lead">Доза в брошюре — в килограммах действующего вещества на гектар. Здесь она переводится в вес удобрения, граммы на квадратный метр и на ваш участок.</p>
+    <div class="calc-grid">
+      <div class="field"><label>Удобрение</label><div class="chips" id="calc-ferts"></div></div>
+      <div class="field"><label for="calc-dose">Доза, кг д. в./га</label>
+        <div class="inline"><input type="number" id="calc-dose" min="0" max="1000" step="5" value="120"></div></div>
+      <div class="field"><label for="calc-area">Площадь участка</label>
+        <div class="inline"><input type="number" id="calc-area" min="0" step="1" value="6">
+          <select id="calc-unit" aria-label="Единица площади"><option value="100" selected>соток</option><option value="1">м²</option><option value="10000">га</option></select></div></div>
+      <div class="out" id="calc-out"></div>
+      <p class="lead" style="font-size:13px">Столовая ложка гранул ≈ 15–20 г. Взвесьте свою ложку один раз — так дозировка будет точнее.</p>
+    </div>
+  </section>
+
+  <footer id="disclaimer"></footer>
+</div>
+<button class="fab" id="fab" hidden><span class="dot" id="fab-dot"></span><span>К рекомендациям</span></button>
+
+<script>/*__ENGINE__*/</script>
+<script>
+const RULES = /*__RULES__*/null;
+const E = makeEngine(RULES);
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const LIGHT_NAME = { red: "красный", yellow: "жёлтый", green: "зелёный" };
+const LIGHT_HINT = { red: "Действуйте сейчас — урожай под угрозой.", yellow: "Есть отклонения: исправьте в ближайший подходящий срок.", green: "Почва не ограничивает урожай." };
+const EXAMPLE = { texture: "sandy_loam", crop: "potato", ph: "ph2", carb: "carb0", n: "n2", p: "p2", k: "k2", org_color: "c2", org_foam: "f1", manure: "no", area: "600" };
+const STORE_KEY = "pochvasvet-answers";
+let answers = Object.assign({}, EXAMPLE), isExample = true;
+try { const saved = JSON.parse(localStorage.getItem(STORE_KEY) || "null"); if (saved) { answers = saved; isExample = false; } } catch (e) {}
+const month = new Date().getMonth() + 1;
+
+/* --- Telegram --- */
+const TG = window.Telegram && window.Telegram.WebApp;
+if (TG) { try { TG.ready(); TG.expand(); document.documentElement.setAttribute("data-theme", TG.colorScheme === "dark" ? "dark" : "light"); } catch (e) {} }
+
+/* --- вкладки --- */
+const tabs = [...document.querySelectorAll('[role="tab"]')];
+function openTab(id) {
+  tabs.forEach(t => { const on = t.id === id; t.setAttribute("aria-selected", on); $("#" + t.getAttribute("aria-controls")).hidden = !on; });
+  updateFab();
+  if (id === "tab-combo") renderCombos();
+}
+tabs.forEach(t => t.addEventListener("click", () => openTab(t.id)));
+const hash = location.hash.slice(1);
+if (["book", "combo", "calc"].includes(hash)) openTab("tab-" + hash);
+
+/* --- мастер --- */
+function lightOf(levelId) { try { return E.levelLight(levelId, answers); } catch (e) { return null; } }
+function renderWizard() {
+  const form = $("#wizard"); form.innerHTML = "";
+  RULES.questions.forEach((q, i) => {
+    const fs = document.createElement("fieldset"); fs.className = "q";
+    let html = `<legend class="q-label"><span class="q-step">Шаг ${i + 1} из ${RULES.questions.length}</span>${esc(q.text)}</legend><div class="chips">`;
+    if (q.indicator) {
+      for (const l of E.INDICATORS[q.indicator].levels) {
+        const on = answers[q.id] === l.id;
+        html += `<button type="button" class="chip" aria-pressed="${on}" data-q="${q.id}" data-v="${l.id}"><span class="dot ${lightOf(l.id) || ""}"></span>${esc(l.button)}</button>`;
+      }
+      html += `<button type="button" class="chip skip" aria-pressed="${!answers[q.id]}" data-q="${q.id}" data-v="">не делал</button>`;
+    } else {
+      for (const o of q.options) {
+        const on = answers[q.id] === o.id;
+        html += `<button type="button" class="chip" aria-pressed="${on}" data-q="${q.id}" data-v="${o.id}">${esc(o.label)}</button>`;
+      }
+    }
+    fs.innerHTML = html + "</div>";
+    form.appendChild(fs);
+  });
+}
+$("#wizard").addEventListener("click", ev => {
+  const b = ev.target.closest(".chip"); if (!b) return;
+  const q = b.dataset.q, v = b.dataset.v;
+  if (v) answers[q] = v; else delete answers[q];
+  if (isExample) { isExample = false; $("#example-note").hidden = true; }
+  try { localStorage.setItem(STORE_KEY, JSON.stringify(answers)); } catch (e) {}
+  renderWizard(); renderResult();
+});
+$("#clear").addEventListener("click", () => {
+  answers = { manure: "no", area: "0" }; isExample = false; $("#example-note").hidden = true;
+  try { localStorage.removeItem(STORE_KEY); } catch (e) {}
+  renderWizard(); renderResult();
+});
+
+function renderResult() {
+  const r = E.buildReport(answers, month), out = [];
+  const needs = ["texture", "crop"].filter(k => !answers[k]);
+  if (needs.length) out.push(`<div class="warn-line">Укажите ${needs.map(k => k === "texture" ? "механический состав почвы" : "культуру").join(" и ")} — от них зависят сигналы и дозы.</div>`);
+  const ov = r.overall;
+  out.push(`<div class="verdict ${ov || ""}"><div class="lamp"></div><div><h2>Итог по полю: ${ov ? LIGHT_NAME[ov] : "нет данных"}</h2><p>${ov ? LIGHT_HINT[ov] : "Отметьте хотя бы один тест."}</p></div></div>`);
+  r.warnings.forEach(w => out.push(`<div class="warn-line">${esc(w)}</div>`));
+  out.push(`<div class="block"><h3>План по приоритетам</h3><ol>${r.plan.map(s => `<li>${esc(s)}</li>`).join("")}</ol>
+    ${r.skipBuy.length ? `<p style="margin:4px 0 0"><b>Не покупать в этом сезоне:</b> ${esc(r.skipBuy.join(", "))}</p>` : ""}
+    <div><button class="btn" id="copy">Скопировать итог</button> <span id="copy-msg" class="lead" style="font-size:13px"></span></div></div>`);
+  if (r.combos.length) {
+    out.push(`<div class="tag">Сочетания, совпавшие с вашими результатами</div>`);
+    r.combos.forEach(c => out.push(`<div class="block card ${c.light}"><h3><span class="dot ${c.light}"></span>${c.id}. ${esc(c.title)}</h3><p class="meaning">${esc(c.why)}</p><ul>${c.actions.map(a => `<li>${esc(a)}</li>`).join("")}</ul></div>`));
+  }
+  if (r.cards.length) out.push(`<div class="tag">По каждому тесту</div>`);
+  r.cards.forEach(c => out.push(`<div class="block card ${c.light}"><h3><span class="dot ${c.light}"></span>${esc(c.name)}</h3>
+    <div class="lvl">${esc(c.levelTitle)}</div><p class="meaning">${esc(c.meaning)}</p>
+    ${c.actions.length ? `<ul>${c.actions.map(a => `<li>${esc(a)}</li>`).join("")}</ul>` : ""}
+    ${c.doseLines.length ? `<div class="dose">${c.doseLines.map(d => `<div>${esc(d)}</div>`).join("")}</div>` : ""}</div>`));
+  $("#result").innerHTML = out.join("");
+  $("#fab-dot").className = "dot " + (ov || "");
+  $("#copy").addEventListener("click", () => copySummary(r));
+  if (!$("#p-combo").hidden) renderCombos();
+}
+function summaryText(r) {
+  const L = { red: "🔴", yellow: "🟡", green: "🟢" };
+  const lines = [`ПочваСвет — итог: ${r.overall ? L[r.overall] + " " + LIGHT_NAME[r.overall] : "нет данных"}`, "", "План:"];
+  r.plan.forEach((s, i) => lines.push(`${i + 1}. ${s}`));
+  if (r.skipBuy.length) lines.push("", "Не покупать: " + r.skipBuy.join(", "));
+  r.cards.forEach(c => { lines.push("", `${L[c.light]} ${c.name}: ${c.levelTitle}`); c.doseLines.forEach(d => lines.push("  " + d)); });
+  if (r.combos.length) lines.push("", "Сочетания: " + r.combos.map(c => c.id + " " + c.title).join("; "));
+  return lines.join("\n");
+}
+function copySummary(r) {
+  const text = summaryText(r), msg = $("#copy-msg");
+  const done = ok => { msg.textContent = ok ? "Скопировано — вставьте в чат или заметки." : "Не удалось скопировать: выделите текст вручную."; };
+  try { navigator.clipboard.writeText(text).then(() => done(true), () => done(false)); } catch (e) { done(false); }
+}
+
+/* кнопка «к рекомендациям» видна, пока результат за пределами экрана */
+let resultVisible = false;
+const io = "IntersectionObserver" in window ? new IntersectionObserver(es => { resultVisible = es[0].isIntersecting; updateFab(); }) : null;
+if (io) io.observe($("#result"));
+function updateFab() { $("#fab").hidden = $("#p-check").hidden || resultVisible || !io; }
+$("#fab").addEventListener("click", () => $("#result").scrollIntoView());
+
+/* --- брошюра --- */
+const CROP = { grain: "Зерновые", potato: "Картофель", veg: "Овощи" };
+const TEX = { sand: "Песок", sandy_loam: "Супесь", loam: "Суглинок" };
+function levelBlock(l, ind) {
+  let h = `<div class="lvl-item"><h4><span class="dot ${l.light}"></span>${esc(l.title)}</h4><div class="btnlabel">Как выглядит: ${esc(l.button)}</div>`;
+  if (l.light_rules) h += `<div class="btnlabel">Сигнал зависит от почвы и культуры: ${l.light_rules.map(r => `${Object.entries(r.when).map(([k, v]) => v.map(x => (TEX[x] || CROP[x] || x).toLowerCase()).join("/")).join(" + ")} → ${LIGHT_NAME[r.light]}`).join("; ")}.</div>`;
+  h += `<p class="meaning">${esc(l.meaning)}</p>`;
+  if (l.actions.length) h += `<ul>${l.actions.map(a => `<li>${esc(a)}</li>`).join("")}</ul>`;
+  if (l.lime) h += `<div class="tbl-wrap"><table><tr><th>Почва</th><th>Доломитовая мука, т/га</th><th>г/м²</th></tr>${Object.entries(l.lime).map(([t, [a, b]]) => `<tr><td>${TEX[t]}</td><td class="num">${a}–${b}</td><td class="num">${a * 100}–${b * 100}</td></tr>`).join("")}</table></div>`;
+  if (l.dose) h += `<div class="tbl-wrap"><table><tr><th>Культура</th><th>Доза, кг д. в./га</th></tr>${Object.entries(l.dose).map(([c, [a, b]]) => `<tr><td>${CROP[c]}</td><td class="num">${b === 0 ? "не вносить" : (a === b ? a : a + "–" + b)}</td></tr>`).join("")}</table></div>`;
+  return h + "</div>";
+}
+function renderBook() {
+  const parts = [];
+  for (const id of ["ph", "carb", "n", "p", "k"]) {
+    const ind = E.INDICATORS[id];
+    let body = `<p class="lead">${esc(ind.intro || "")}</p>` + ind.levels.map(l => levelBlock(l, ind)).join("");
+    if (id === "n") body += `<div class="lvl-item"><h4>Полная доза азота за сезон</h4><div class="tbl-wrap"><table><tr><th>Культура</th><th>кг N/га</th><th>Как делить</th></tr>${Object.entries(RULES.n_full).map(([c, d]) => `<tr><td>${CROP[c]}</td><td class="num">${d.range[0]}–${d.range[1]}</td><td>${esc(d.note)}</td></tr>`).join("")}</table></div></div>`;
+    parts.push(`<details class="acc"${id === "ph" ? " open" : ""}><summary>${esc(ind.name)}</summary><div class="acc-body">${body}</div></details>`);
+  }
+  const org = RULES.organics;
+  let ob = `<p class="lead">${esc(org.rule)}</p><div class="tbl-wrap"><table><tr><th>Признак</th><th>Красный</th><th>Жёлтый</th><th>Зелёный</th></tr>${["org_color", "org_foam", "org_worms"].map(id => { const ind = E.INDICATORS[id]; return `<tr><td>${esc(ind.name.replace("Органика: ", ""))}</td>${ind.levels.map(l => `<td>${esc(l.button)}</td>`).join("")}</tr>`; }).join("")}</table></div>`;
+  ob += ["red", "yellow", "green"].map(k => `<div class="lvl-item"><h4><span class="dot ${k}"></span>${esc(org.levels[k].title)}</h4><p class="meaning">${esc(org.levels[k].meaning)}</p><ul>${org.levels[k].actions.map(a => `<li>${esc(a)}</li>`).join("")}</ul></div>`).join("");
+  parts.push(`<details class="acc"><summary>${esc(org.name)}</summary><div class="acc-body">${ob}</div></details>`);
+  parts.push(`<details class="acc"><summary>Если бюджет ограничен</summary><div class="acc-body"><ol style="margin:0;padding-left:20px;display:grid;gap:4px">${RULES.budget.map(s => `<li>${esc(s)}</li>`).join("")}</ol><p style="margin:0"><b>Сразу вычеркните из закупки:</b> фосфор и калий на полях V–VI группы, известь при pH выше 6,0 (на песке и супеси — выше 5,5) и при шипении с уксусом.</p></div></details>`);
+  parts.push(`<details class="acc"><summary>Сезонный календарь</summary><div class="acc-body"><div class="tbl-wrap"><table><tr><th>Период</th><th>Тесты</th><th>Работы</th></tr>${RULES.calendar.map(r => `<tr><td>${esc(r.period)}</td><td>${esc(r.tests)}</td><td>${esc(r.work)}</td></tr>`).join("")}</table></div></div></details>`);
+  parts.push(`<details class="acc"><summary>Безопасность и когда звать агронома</summary><div class="acc-body"><ul style="margin:0;padding-left:20px;display:grid;gap:4px">${RULES.safety.map(s => `<li>${esc(s)}</li>`).join("")}</ul></div></details>`);
+  $("#book").style.cssText = "display:grid;gap:10px";
+  $("#book").innerHTML = parts.join("");
+}
+
+/* --- сочетания --- */
+let comboFilter = "all";
+function describeWhen(w) {
+  const names = { texture: TEX, crop: CROP, org: { red: "органика красная", yellow: "органика жёлтая", green: "органика зелёная" }, manure: { yes: "недавно вносили навоз", no: "без навоза" } };
+  return Object.entries(w).map(([k, v]) => {
+    if (k === "any") return "(" + v.map(describeWhen).join(" или ") + ")";
+    if (k === "all_green") return "все показатели зелёные";
+    if (k === "month") return "ранняя весна (март–апрель)";
+    if (names[k]) return v.map(x => names[k][x].toLowerCase()).join(" / ");
+    return v.map(x => E.LEVELS[x][1].title.split(" — ")[0].split(":")[0]).join(" / ");
+  }).join(" + ");
+}
+function renderCombos() {
+  const matched = new Set(E.buildReport(answers, month).combos.map(c => c.id));
+  const f = $("#combo-filters");
+  const opts = [["all", "Все"], ["matched", `Мой разбор (${matched.size})`], ["red", "Красные"], ["yellow", "Жёлтые"], ["green", "Зелёные"]];
+  f.innerHTML = opts.map(([k, t]) => `<button class="chip" aria-pressed="${comboFilter === k}" data-f="${k}">${k in LIGHT_NAME ? `<span class="dot ${k}"></span>` : ""}${t}</button>`).join("");
+  let group = null; const out = [];
+  for (const c of RULES.combos) {
+    if (comboFilter === "matched" && !matched.has(c.id)) continue;
+    if (comboFilter in LIGHT_NAME && c.light !== comboFilter) continue;
+    if (c.group !== group) { group = c.group; out.push(`<div class="group-h">${esc(group)}</div>`); }
+    out.push(`<details class="acc${matched.has(c.id) ? " combo-match" : ""}"${matched.has(c.id) ? " open" : ""}><summary><span style="display:flex;gap:8px;align-items:center"><span class="dot ${c.light}"></span>${c.id}. ${esc(c.title)}</span></summary>
+      <div class="acc-body">${matched.has(c.id) ? `<div class="tag">Совпадает с вашим разбором</div>` : ""}
+      <p style="margin:0"><b>Когда:</b> ${esc(describeWhen(c.when))}</p><p style="margin:0"><b>Почему:</b> ${esc(c.why)}</p>
+      <ul style="margin:0;padding-left:20px;display:grid;gap:3px">${c.actions.map(a => `<li>${esc(a)}</li>`).join("")}</ul></div></details>`);
+  }
+  $("#combos").innerHTML = out.join("") || `<p class="lead">Под этот фильтр сочетаний нет.</p>`;
+}
+$("#combo-filters").addEventListener("click", ev => { const b = ev.target.closest("[data-f]"); if (b) { comboFilter = b.dataset.f; renderCombos(); } });
+
+/* --- пересчёт --- */
+let calcFert = "k2so4";
+function renderCalc() {
+  $("#calc-ferts").innerHTML = RULES.fertilizers.map(f => `<button type="button" class="chip" aria-pressed="${f.id === calcFert}" data-f="${f.id}">${esc(f.name)} · ${f.pct}%</button>`).join("");
+  const dose = Number($("#calc-dose").value) || 0, area = (Number($("#calc-area").value) || 0) * Number($("#calc-unit").value);
+  const r = E.convert(dose, calcFert, area), n = x => E.num(x);
+  $("#calc-out").innerHTML = `<div><b>${n(r.kg_per_ha)}</b><span>кг удобрения на гектар</span></div>
+    <div><b>${n(r.g_per_m2)}</b><span>граммов на 1 м² (≈ ${n(r.tablespoons_per_m2)} ст. ложки)</span></div>
+    <div><b>${r.kg_for_area != null ? n(r.kg_for_area) : "—"}</b><span>кг на ваш участок (${n(area)} м²)</span></div>`;
+}
+$("#calc-ferts").addEventListener("click", ev => { const b = ev.target.closest("[data-f]"); if (b) { calcFert = b.dataset.f; renderCalc(); } });
+["#calc-dose", "#calc-area", "#calc-unit"].forEach(s => $(s).addEventListener("input", renderCalc));
+
+$("#disclaimer").textContent = RULES.meta.disclaimer;
+if (!isExample) $("#example-note").hidden = true;
+renderWizard(); renderResult(); renderBook(); renderCalc();
+</script>

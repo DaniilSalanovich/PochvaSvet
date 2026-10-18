@@ -1,0 +1,16 @@
+---
+description: Правила проекта ПочваСвет (Telegram-бот рекомендаций по тестам почвы)
+alwaysApply: true
+---
+
+Полные правила — в файле CLAUDE.md в корне репозитория. Прочитай его перед любой задачей.
+
+Кратко:
+- Агрономические числа и тексты рекомендаций только из rules/rules.json; не придумывать.
+- app/core/engine.py и webapp/engine.js должны совпадать: после правки запускать python tools/compare_engines.py.
+- app/core без I/O; app/screens возвращают Screen(text, buttons) без aiogram.
+- callback_data ≤ 64 байт (схема в docs/02_user_flows.md), сообщения ≤ 4096 символов, HTML-экранирование.
+- Проверять принадлежность id из callback_data текущему пользователю.
+- Логи без Telegram ID, текстов и координат.
+- Сначала план, потом код; перед завершением: ruff, mypy app/core app/screens, pytest, compare_engines.
+- Этапы и готовые промпты — docs/11_vibecoding_plan.md.
